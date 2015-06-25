@@ -46,6 +46,93 @@
 
     <p>Tomasz Białecki</p>
 </section>
+
+
+<!--Testing controllers    -->
+<section>
+    <section>
+        <h1>Testing Controllers</h1>
+    </section>
+    <section>
+        <h2>Language change controller - code</h2>
+<pre><code class="high-code" data-trim class="javascript">
+.controller('LanguageChangeCntl', function ($scope) {
+  $scope.supportedLanguages = [
+    {
+      key: 'en'
+    },
+    {
+      key: 'de'
+    }
+  ];
+  $scope.currentLanguage = $scope.supportedLanguages[0];
+
+  $scope.changeLanguage = function (lang) {
+    $scope.currentLanguage = lang;
+  };
+
+  $scope.getCurrentLanguage = function () {
+    $scope.currentLanguage;
+  };
+});
+</code></pre>
+    </section>
+    <section>
+        <h2>Language change controller - test setup</h2>
+<pre><code class="high-code" data-trim class="javascript">
+describe('Controller: LanguageChangeCntl', function () {
+  var $scope;
+
+  beforeEach(module('app.main.languageChange'));
+
+  beforeEach(inject(function ($rootScope, $controller) {
+    //given
+    $scope = $rootScope;
+    $controller('LanguageChangeCntl', {$scope: $rootScope});
+  }));
+
+  //tests
+});
+
+</code></pre>
+    </section>
+    <section>
+        <h2>Language change controller - test 1</h2>
+<pre class="middle-wide-pre"><code class="high-code" data-trim class="javascript">
+it('should set api', function () {
+  expect($scope.changeLanguage).toBeDefined();
+  expect($scope.getCurrentLanguage).toBeDefined();
+});
+</code></pre>
+    </section>
+    <section>
+        <h2>Language change controller - test 2</h2>
+<pre class="middle-wide-pre"><code class="high-code" data-trim class="javascript">
+it('should set default language', function () {
+  //given
+  var lang = 'en', currentLanguage;
+  //when
+  currentLanguage = $scope.getCurrentLanguage();
+  //then
+  expect(currentLanguage.key).toBe(lang);
+});
+</code></pre>
+    </section>
+    <section>
+        <h2>Language change controller - test 3</h2>
+<pre class="middle-wide-pre"><code class="high-code" data-trim class="javascript">
+it('should allow to change current language', function () {
+  //given
+  var langToSet = $scope.supportedLanguages[1];
+  //when
+  $scope.changeLanguage(langToSet);
+  //then
+  expect($scope.getCurrentLanguage().key).toBe(langToSet.key)
+});
+</code></pre>
+    </section>
+</section>
+<!--Testing directives    -->
 <section>
     <section>
         <h1>Testing Directives</h1>
@@ -104,7 +191,7 @@ describe('button-bar directive specs', function () {
     <section>
         <h2>Button bar directive - test 1</h2>
 <pre class="middle-wide-pre"><code class="high-code" data-trim class="javascript">
-  it('renders a button', function () {
+it('renders a button', function () {
   // given
   var buttonLabel = 'View Details', renderedButtonLabel, element;
   $rootScope.buttons = [
@@ -145,7 +232,6 @@ it('calls onClick callback when button clicked', function () {
 </code></pre>
     </section>
 </section>
-
 
 <script src="base/reveal.js/lib/js/head.min.js"></script>
 <script src="base/reveal.js/js/reveal.js"></script>
