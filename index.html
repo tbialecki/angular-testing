@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>Angular Testing</title>
+
+    <meta name="description" content="Angular Testing">
+    <meta name="author" content="Tomasz Białecki">
+
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+    <link rel="stylesheet" href="base/reveal.js/css/reveal.css">
+    <link rel="stylesheet" href="base/reveal.js/css/theme/white.css" id="theme">
+    <link rel="stylesheet" href="css/own.css">
+
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="base/reveal.js/lib/css/zenburn.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+        var link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = window.location.search.match(/print-pdf/gi) ? 'base/reveal.js/css/print/pdf.css' : 'base/reveal.js/css/print/paper.css';
+        document.getElementsByTagName('head')[0].appendChild(link);
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="base/reveal.js/lib/js/html5shiv.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+
+<div class="reveal">
+<!-- Any section element inside of this container is displayed as a slide -->
+<div class="slides">
+<section>
+    <h1>AngularJS Testing</h1>
+
+    <p>Tomasz Białecki</p>
+</section>
+<section>
+    <section>
+        <h1>Testing Directives</h1>
+    </section>
+    <section>
+        <h2>Button bar directive - code</h2>
+<pre><code class="high-code" data-trim class="javascript">
+.directive('buttonBar', function () {
+  return {
+    restrict: 'EA',
+    replace: true,
+    templateUrl: 'main/button-bar/button-bar.html',
+    scope: {
+      buttons: '='
+    },
+    link: function ($scope) {
+      $scope.onButtonClick = function (buttonDef) {
+        if (buttonDef && angular.isFunction(buttonDef.onClick)) {
+          buttonDef.onClick.apply(undefined, arguments);
+        }
+      };
+    }
+  };
+});
+</code></pre>
+    </section>
+    <section>
+        <h2>Button bar directive - template</h2>
+<pre><code class="high-code" data-trim class="javascript">
+&lt;div class=&quot;button-bar&quot;&gt;
+  &lt;button data-ng-repeat=&quot;button in buttons&quot;
+          data-ng-click=&quot;onButtonClick(button)&quot;&gt;
+      {{button.label}}
+  &lt;/button&gt;
+&lt;/div&gt;
+</code></pre>
+    </section>
+    <section>
+        <h2>Button bar directive - test setup</h2>
+<pre><code class="high-code" data-trim class="javascript">
+describe('button-bar directive specs', function () {
+  'use strict';
+  var $compile, $rootScope;
+
+  beforeEach(module('app.main.buttonBar'));
+
+  beforeEach(inject(function (_$compile_, _$rootScope_) {
+    $compile = _$compile_;
+    $rootScope = _$rootScope_;
+  }));
+
+  //tests
+});
+</code></pre>
+    </section>
+    <section>
+        <h2>Button bar directive - test 1</h2>
+<pre class="middle-wide-pre"><code class="high-code" data-trim class="javascript">
+  it('renders a button', function () {
+  // given
+  var buttonLabel = 'View Details', renderedButtonLabel, element;
+  $rootScope.buttons = [
+    {
+      label: buttonLabel
+    }
+  ];
+  // when
+  element = $compile('<button-bar data-buttons="buttons"></button-bar>')($rootScope);
+  $rootScope.$digest();
+  // then
+  renderedButtonLabel = element.find('button').eq(0).text();
+  expect(renderedButtonLabel.trim()).toEqual(buttonLabel);
+});
+</code></pre>
+    </section>
+    <section>
+        <h2>Button bar directive - test 1</h2>
+<pre class="middle-wide-pre"><code class="high-code" data-trim class="javascript">
+it('calls onClick callback when button clicked', function () {
+  // given
+  var element;
+  $rootScope.buttons = [
+    {
+      label: 'View Details',
+      onClick: angular.noop
+    }
+  ];
+  spyOn($rootScope.buttons[0], 'onClick');
+  // when
+  element = $compile('<button-bar data-buttons="buttons"></button-bar>')($rootScope);
+  $rootScope.$digest();
+  element.find('button').click();
+  $rootScope.$digest();
+  // then
+  expect($rootScope.buttons[0].onClick).toHaveBeenCalled();
+});
+</code></pre>
+    </section>
+</section>
+
+
+<script src="base/reveal.js/lib/js/head.min.js"></script>
+<script src="base/reveal.js/js/reveal.js"></script>
+<script>
+    // Full list of configuration options available at:
+    // https://github.com/hakimel/reveal.js#configuration
+    Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        minScale: 1,
+        maxScale: 1,
+        transition: 'zoom', // none/fade/slide/convex/concave/zoom
+
+        // Optional reveal.js plugins
+        dependencies: [
+            {
+                src: 'base/reveal.js/lib/js/classList.js',
+                condition: function () {
+                    return !document.body.classList;
+                }
+            },
+            {
+                src: 'base/reveal.js/plugin/markdown/marked.js',
+                condition: function () {
+                    return !!document.querySelector('[data-markdown]');
+                }
+            },
+            {
+                src: 'base/reveal.js/plugin/markdown/markdown.js',
+                condition: function () {
+                    return !!document.querySelector('[data-markdown]');
+                }
+            },
+            {
+                src: 'base/reveal.js/plugin/highlight/highlight.js',
+                async: true,
+                condition: function () {
+                    return !!document.querySelector('pre code');
+                },
+                callback: function () {
+                    hljs.initHighlightingOnLoad();
+                }
+            },
+            {
+                src: 'base/reveal.js/plugin/zoom-js/zoom.js',
+                async: true
+            },
+            {
+                src: 'base/reveal.js/plugin/notes/notes.js',
+                async: true
+            }
+        ]
+    });
+</script>
+
+</body>
+
+</html>
